@@ -66,7 +66,7 @@ def search(request):
 @login_required
 def profile(request, username):
     user = User.objects.get(username=username)
-    posts = Post.objects.filter(user=user)
+    post = Post.objects.filter(user=user)
     return render(request, 'profile.html', { 'username':username })
 
 
@@ -82,9 +82,10 @@ class PostCreate(CreateView):
     model = Post
     fields = ['category', 'itemName', 'weightQuantity', 'description']
 
-
-    def form_valid(self, form): # This lets us catch the PK, if we didn't do this we'd have no way of accessing this pk from this CRUD right here
+    def form_valid(self, form):
+        # This lets us catch the PK, if we didn't do this we'd have no way of accessing this pk from this CRUD right here
         self.object = form.save(commit=False) # Don't post to DB until I say so, this is the form validation
         self.object.user = self.request.user
+        user = self.object.user
         self.object.save() # This gives us access to the PK thhrough the self.object
-        return redirect('/user/'+str(user.username))
+        return HttpResponseRedirect('/user/'+str(user.username))
